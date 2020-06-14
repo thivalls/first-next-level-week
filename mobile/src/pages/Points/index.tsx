@@ -120,7 +120,11 @@ const Points = () => {
                       }}
                     >
                       <View style={styles.mapMarkerContainer}>
-                        <Image style={styles.mapMarkerImage} source={{ uri: point.image }} />
+                        { 
+                          point.image.length > 0 && ( 
+                          <Image style={styles.mapMarkerImage} source={{ uri: point.image }} />
+                          )
+                        }
                         <Text style={styles.mapMarkerTitle}>{point.name}</Text>
                       </View>
                     </Marker>

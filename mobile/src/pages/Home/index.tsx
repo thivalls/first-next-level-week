@@ -1,14 +1,63 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Feather as Icon } from '@expo/vector-icons';
 import { StyleSheet, ImageBackground, View, Image, Text } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
+import RNPickerSelect from 'react-native-picker-select';
+
+
+interface IBGEUfInterface {
+  id: number;
+  sigla: string;
+  nome: string;
+}
+
+interface IBGECityInterface {
+  id: number;
+  nome: string;
+}
+
+interface ReactPickerSelectModel {
+  label: string;
+  value: string;
+}
 
 const Home = () => {
   const navigation = useNavigation();
 
+  const [ufs, setUfs] = useState<ReactPickerSelectModel[]>([]);
+  const [selectedUf, setSelectedUf] = useState('');
+  const [cities, setCities] = useState<ReactPickerSelectModel[]>([]);
+  const [selectedCity, setSelectedCity] = useState('');
+
+  useEffect(() => {
+    axios.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome').then((response) => {
+      // console.log(response.data);
+      setUfs(response.data.map(item => ({
+        label: `${item.nome} - (${item.sigla})`,
+        value: item.sigla
+      })));
+    });
+  }, []);
+
+  useEffect(() => {
+    if (selectedUf === '0') {
+      setCities([]);
+      setSelectedCity('0');
+      return;
+    }
+
+    axios.get(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios?orderBy=nome`).then((response) => {
+      setCities(response.data.map(item => ({
+        label: item.nome,
+        value: item.nome
+      })));
+    });
+  }, [selectedUf]);
+
   function handleNavigateToPoints() {
-    navigation.navigate('Points');
+    navigation.navigate('Points', { uf: selectedUf, city: selectedCity });
   }
 
   return (
@@ -26,6 +75,21 @@ const Home = () => {
           Ajudamos pessoas a encontrarem pontos de coleta de forma eficiente
         </Text>
       </View>
+      
+      <View>
+        <RNPickerSelect
+          placeholder={{label: 'Selecione um estado', value: ''}}
+          onValueChange={setSelectedUf}
+          value={selectedUf}
+          items={ufs}
+        />
+        <RNPickerSelect
+          placeholder={{label: 'Selecione uma cidade', value: ''}}
+          onValueChange={setSelectedCity}
+          value={selectedCity}
+          items={cities}
+        />
+      </View>  
 
       <View style={styles.footer}>
         <RectButton style={styles.button} onPress={() => { handleNavigateToPoints() }}>

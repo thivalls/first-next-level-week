@@ -16,7 +16,7 @@ interface Items {
   title: string;
   image_url: string;
 }
-interface Uf {
+interface IBGEUfInterface {
   id: number;
   sigla: string;
   nome: string;
@@ -30,7 +30,7 @@ interface IBGECityInterface {
 const CreatePoint: React.FC = () => {
   const history = useHistory();
   const [items, setItems] = useState<Items[]>([]);
-  const [ufs, setUfs] = useState<Uf[]>([]);
+  const [ufs, setUfs] = useState<IBGEUfInterface[]>([]);
   const [cities, setCities] = useState<IBGECityInterface[]>([]);
   const [selectedUf, setSelectedUf] = useState<string>('0');
   const [selectedCity, setSelectedCity] = useState<string>('0');

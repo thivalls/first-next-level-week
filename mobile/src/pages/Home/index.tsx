@@ -8,13 +8,11 @@ import RNPickerSelect from 'react-native-picker-select';
 
 
 interface IBGEUfInterface {
-  id: number;
   sigla: string;
   nome: string;
 }
 
 interface IBGECityInterface {
-  id: number;
   nome: string;
 }
 
@@ -32,7 +30,7 @@ const Home = () => {
   const [selectedCity, setSelectedCity] = useState('');
 
   useEffect(() => {
-    axios.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome').then((response) => {
+    axios.get<IBGEUfInterface[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome').then((response) => {
       // console.log(response.data);
       setUfs(response.data.map(item => ({
         label: `${item.nome} - (${item.sigla})`,
@@ -48,7 +46,7 @@ const Home = () => {
       return;
     }
 
-    axios.get(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios?orderBy=nome`).then((response) => {
+    axios.get<IBGECityInterface[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios?orderBy=nome`).then((response) => {
       setCities(response.data.map(item => ({
         label: item.nome,
         value: item.nome
@@ -76,7 +74,7 @@ const Home = () => {
         </Text>
       </View>
       
-      <View>
+      <View style={styles.selectBlock}>
         <RNPickerSelect
           placeholder={{label: 'Selecione um estado', value: ''}}
           onValueChange={setSelectedUf}
@@ -173,7 +171,11 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontFamily: 'Roboto_500Medium',
     fontSize: 16,
-  }
+  },
+
+  selectBlock: {
+    marginBottom: 24,
+  },
 });
 
 export default Home;

@@ -5,6 +5,8 @@ import { Map, TileLayer, Marker } from 'react-leaflet';
 import { LeafletMouseEvent } from 'leaflet';
 import axios from 'axios';
 
+import Dropzone from '../../components/Dropzone';
+
 import api from '../../services/api';
 
 import './styles.css';
@@ -14,7 +16,7 @@ import logo from '../../assets/logo.svg';
 interface Items {
   id: number;
   title: string;
-  image_url: string;
+  item_image_url: string;
 }
 interface IBGEUfInterface {
   id: number;
@@ -32,16 +34,19 @@ const CreatePoint: React.FC = () => {
   const [items, setItems] = useState<Items[]>([]);
   const [ufs, setUfs] = useState<IBGEUfInterface[]>([]);
   const [cities, setCities] = useState<IBGECityInterface[]>([]);
-  const [selectedUf, setSelectedUf] = useState<string>('0');
-  const [selectedCity, setSelectedCity] = useState<string>('0');
-  const [selectedPosition, setSelectedPosition] = useState<[number, number]>([0, 0]);
-  const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [initialMapPosition, setInitialMapPosition] = useState<[number, number]>([0, 0]);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     whatsapp: ''
   });
+
+  const [selectedUf, setSelectedUf] = useState<string>('0');
+  const [selectedCity, setSelectedCity] = useState<string>('0');
+  const [selectedPosition, setSelectedPosition] = useState<[number, number]>([0, 0]);
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File>();
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(position => {
@@ -107,16 +112,19 @@ const CreatePoint: React.FC = () => {
     const [longitude, latitude] = selectedPosition;
     const items = selectedItems;
 
-    const data = {
-      image: '',
-      name,
-      email,
-      whatsapp,
-      uf,
-      city,
-      longitude,
-      latitude,
-      items
+    const data = new FormData();
+
+    data.append('name', name);
+    data.append('email', email);
+    data.append('whatsapp', whatsapp);
+    data.append('uf', uf);
+    data.append('city', city);
+    data.append('longitude', String(longitude));
+    data.append('latitude', String(latitude));
+    data.append('items', items.join(','));
+
+    if (selectedFile) {
+      data.append('image', selectedFile);
     }
 
     await api.post('points', data);
@@ -138,6 +146,9 @@ const CreatePoint: React.FC = () => {
 
       <form onSubmit={handleSubmit}>
         <h1>Cadastro de Ponto de Coleta</h1>
+
+        <Dropzone onFileUploaded={setSelectedFile} />
+
         <fieldset>
           <legend>
             <h2>Dados</h2>
@@ -243,7 +254,7 @@ const CreatePoint: React.FC = () => {
                   onClick={() => handleSelectedItems(item.id)}
                   className={selectedItems.includes(item.id) ? 'selected' : ''}
                 >
-                  <img src={item.image_url} alt={item.title} />
+                  <img src={item.item_image_url} alt={item.title} />
                   <span>{item.title}</span>
                 </li>
               ))

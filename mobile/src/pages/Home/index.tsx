@@ -73,21 +73,21 @@ const Home = () => {
           Ajudamos pessoas a encontrarem pontos de coleta de forma eficiente
         </Text>
       </View>
-      
+
       <View style={styles.selectBlock}>
         <RNPickerSelect
-          placeholder={{label: 'Selecione um estado', value: ''}}
-          onValueChange={setSelectedUf}
+          placeholder={{ label: 'Selecione um estado', value: '' }}
+          onValueChange={(city) => setSelectedUf(city)}
           value={selectedUf}
           items={ufs}
         />
         <RNPickerSelect
-          placeholder={{label: 'Selecione uma cidade', value: ''}}
-          onValueChange={setSelectedCity}
+          placeholder={{ label: 'Selecione uma cidade', value: '' }}
+          onValueChange={(uf) => setSelectedCity(uf)}
           value={selectedCity}
           items={cities}
         />
-      </View>  
+      </View>
 
       <View style={styles.footer}>
         <RectButton style={styles.button} onPress={() => { handleNavigateToPoints() }}>

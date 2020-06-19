@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { celebrate, Joi } from 'celebrate';
 import multer from 'multer';
 import uploadConfig from './config/upload';
 
@@ -6,6 +7,7 @@ const routes = Router();
 
 import PointsController from './controllers/PointsController';
 import ItemsController from './controllers/ItemsController';
+import Validationpoints from './middlewares/ValidationPoints';
 
 const pointsController = new PointsController;
 const itemsController = new ItemsController;
@@ -16,7 +18,11 @@ const upload = multer(uploadConfig);
 routes.get('/items', itemsController.index);
 
 // Points Routes
-routes.post('/points', upload.single('image'), pointsController.create);
+routes.post('/points', 
+  upload.single('image'),
+  Validationpoints,
+  pointsController.create
+);
 routes.get('/points', pointsController.index);
 routes.get('/points/:id', pointsController.show);
 

@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { celebrate, Joi } from 'celebrate';
 import multer from 'multer';
 import uploadConfig from './config/upload';
 

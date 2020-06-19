@@ -6,7 +6,6 @@ import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
 
-
 interface IBGEUfInterface {
   sigla: string;
   nome: string;
@@ -25,13 +24,13 @@ const Home = () => {
   const navigation = useNavigation();
 
   const [ufs, setUfs] = useState<ReactPickerSelectModel[]>([]);
-  const [selectedUf, setSelectedUf] = useState('');
+  const [selectedUf, setSelectedUf] = useState('0');
   const [cities, setCities] = useState<ReactPickerSelectModel[]>([]);
-  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedCity, setSelectedCity] = useState('0');
+  const [enableButton, setEnableButton] = useState(false);
 
   useEffect(() => {
     axios.get<IBGEUfInterface[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome').then((response) => {
-      // console.log(response.data);
       setUfs(response.data.map(item => ({
         label: `${item.nome} - (${item.sigla})`,
         value: item.sigla
@@ -43,6 +42,7 @@ const Home = () => {
     if (selectedUf === '0') {
       setCities([]);
       setSelectedCity('0');
+      setEnableButton(false);
       return;
     }
 
@@ -56,6 +56,15 @@ const Home = () => {
 
   function handleNavigateToPoints() {
     navigation.navigate('Points', { uf: selectedUf, city: selectedCity });
+  }
+
+  function handleSelectedCity(city: string) {
+    setSelectedCity(city);
+    if(city === '0') {
+      setEnableButton(false);
+    }else {
+      setEnableButton(true);
+    }
   }
 
   return (
@@ -76,27 +85,31 @@ const Home = () => {
 
       <View style={styles.selectBlock}>
         <RNPickerSelect
-          placeholder={{ label: 'Selecione um estado', value: '' }}
-          onValueChange={(city) => setSelectedUf(city)}
+          placeholder={{ label: 'Selecione um estado', value: '0' }}
+          onValueChange={(uf) => setSelectedUf(uf)}
           value={selectedUf}
           items={ufs}
         />
         <RNPickerSelect
-          placeholder={{ label: 'Selecione uma cidade', value: '' }}
-          onValueChange={(uf) => setSelectedCity(uf)}
+          placeholder={{ label: 'Selecione uma cidade', value: '0' }}
+          onValueChange={(city) => handleSelectedCity(city)}
           value={selectedCity}
           items={cities}
         />
       </View>
 
       <View style={styles.footer}>
-        <RectButton style={styles.button} onPress={() => { handleNavigateToPoints() }}>
+        <RectButton 
+          style={enableButton ? styles.button : styles.buttonDisable} 
+          enabled={enableButton}
+          onPress={() => { handleNavigateToPoints() }}
+        >
           <View style={styles.buttonIcon}>
             <Text>
               <Icon name="arrow-right" color="#fff" size={24} />
             </Text>
           </View>
-          <Text style={styles.buttonText}>
+          <Text style={enableButton ? styles.buttonText : styles.buttonDisableText} >
             Entrar
           </Text>
         </RectButton>
@@ -169,6 +182,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     textAlign: 'center',
     color: '#FFF',
+    fontFamily: 'Roboto_500Medium',
+    fontSize: 16,
+  },
+
+  buttonDisable: {
+    backgroundColor: '#F8F8F8',
+    height: 60,
+    flexDirection: 'row',
+    borderRadius: 10,
+    overflow: 'hidden',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+
+  buttonDisableText: {
+    flex: 1,
+    justifyContent: 'center',
+    textAlign: 'center',
+    color: '#d8d8d8',
     fontFamily: 'Roboto_500Medium',
     fontSize: 16,
   },

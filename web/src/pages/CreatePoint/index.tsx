@@ -65,7 +65,7 @@ const CreatePoint: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    axios.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados').then((response) => {
+    axios.get('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome').then((response) => {
       setUfs(response.data);
     });
   }, []);
